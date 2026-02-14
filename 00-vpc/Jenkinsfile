@@ -1,0 +1,51 @@
+pipeline {
+    agent {
+        node {
+            label 'robomart'
+        }
+    }
+
+    stages {
+        stage ('Init') {
+            steps {
+                script {
+                    withAWS(region:'us-east-1', credentials: 'aws-creds') {
+                        sh """
+                            terraform init
+                        """
+                    }
+                }
+            }
+        }
+
+        stage ('Plan') {
+            steps {
+                script {
+                    withAWS(region:'us-east-1', credentials: 'aws-creds') {
+                        sh """
+                            terraform plan
+                        """
+                    }
+                }
+            }
+        }
+
+        stage ('Deploy'){
+            input {
+                message "Approve deployment?"
+                ok "Deploy"
+            }
+
+            steps {
+                script {
+                    withAWS(region:'us-east-1', credentials: 'aws-creds') {
+                        sh """
+                            terraform apply --auto-approve
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+}
