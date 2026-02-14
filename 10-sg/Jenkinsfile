@@ -1,0 +1,117 @@
+pipeline {
+    agent {
+        node {
+            label 'robomart'
+        }
+    }
+
+        environment {
+        AWS_REGION = "us-east-1"
+        AWS_CREDS = "aws-creds"
+    }
+
+    stages {
+        stage ('Init') {
+            steps {
+                script {
+                    withAWS(region:"${AWS_REGION}", credentials: "${AWS_CREDS}") {
+                        sh """
+                            cd 10-sg
+                            terraform init
+                        """
+                    }
+                }
+            }
+        }
+
+        stage ('Plan') {
+            steps {
+                script {
+                    withAWS(region:"${AWS_REGION}", credentials: "${AWS_CREDS}") {
+                        sh """
+                            cd 10-sg
+                            terraform plan
+                        """
+                    }
+                }
+            }
+        }
+
+        stage ('Deploy'){
+            // input {
+            //     message "Approve deployment?"
+            //     ok "Deploy"
+            // }
+
+            steps {
+                script {
+                    withAWS(region:"${AWS_REGION}", credentials: "${AWS_CREDS}") {
+                        sh """
+                            cd 10-sg
+                            terraform apply --auto-approve
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Parallel Trigger') {
+            parallel {
+                stage('Bastion') {
+                    steps {
+                        build job: '20-bastion', 
+                        wait: false,
+                        propagate: false
+                     }
+                }
+                stage('SG Rules') {
+                    steps {
+                        build job: '30-sg-rules', 
+                        wait: false,
+                        propagate: false
+                     }
+                }
+                stage('ECR') {
+                    steps {
+                        build job: '40-ecr', 
+                        wait: false,
+                        propagate: false
+                     }
+                }
+                stage('ACM') {
+                    steps {
+                        build job: '70-acm', 
+                        wait: false,
+                        propagate: false
+                    }
+                }
+                stage('EKS') {
+                    steps {
+                        build job: '90-eks', 
+                        wait: false,
+                        propagate: false
+                    }
+                }
+            } 
+        } 
+        stage('Trigger ALB') {
+            steps {
+                build job: '80-ingress-alb', 
+                wait: false,
+                propagate: false
+            }
+        }
+    }
+    post {
+        always {
+            echo "Post Message after stages"
+            cleanWs()
+        }
+        success {
+            echo "Infra is success"
+        }
+        failure {
+            echo "Infra is failure"
+        }
+    }
+}
