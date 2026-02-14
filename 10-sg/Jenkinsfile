@@ -81,7 +81,7 @@ pipeline {
                 stage('ACM') {
                     steps {
                         build job: '70-acm', 
-                        wait: false,
+                        wait: true,
                         propagate: false
                     }
                 }
