@@ -1,0 +1,65 @@
+pipeline {
+    agent {
+        node {
+            label 'robomart'
+        }
+    }
+
+        environment {
+        AWS_REGION = "us-east-1"
+        AWS_CREDS = "aws-creds"
+    }
+
+    stages {
+        stage ('Init') {
+            steps {
+                script {
+                    withAWS(region:"${AWS_REGION}", credentials: "${AWS_CREDS}") {
+                        sh """
+                            cd 40-ecr
+                            terraform init
+                        """
+                    }
+                }
+            }
+        }
+
+        stage ('Plan') {
+            steps {
+                script {
+                    withAWS(region:"${AWS_REGION}", credentials: "${AWS_CREDS}") {
+                        sh """
+                            cd 40-ecr
+                            terraform plan
+                        """
+                    }
+                }
+            }
+        }
+
+        stage ('Deploy'){
+            steps {
+                script {
+                    withAWS(region:"${AWS_REGION}", credentials: "${AWS_CREDS}") {
+                        sh """
+                            cd 40-ecr
+                            terraform apply --auto-approve
+                        """
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            echo "Post Message after stages"
+            cleanWs()
+        }
+        success {
+            echo "Infra is success"
+        }
+        failure {
+            echo "Infra is failure"
+        }
+    }
+}
