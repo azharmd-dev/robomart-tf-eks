@@ -55,10 +55,9 @@ pipeline {
                             Job: ${env.JOB_NAME}
                             Build: ${env.BUILD_NUMBER}
                             URL: ${env.BUILD_URL}
-                            echo "EMAIL=${APPROVAL_EMAIL}"
                             Please open Jenkins and approve the deployment.
                             """,
-                            to: "${APPROVAL_EMAIL}"
+                            to: APPROVAL_EMAIL
 
                         )
                     }
