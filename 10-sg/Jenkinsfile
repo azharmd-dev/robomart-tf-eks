@@ -90,13 +90,13 @@ pipeline {
                         propagate: false
                     }
                 }
-                stage('EKS') {
-                    steps {
-                        build job: '90-eks', 
-                        wait: false,
-                        propagate: false
-                    }
-                }
+                // stage('EKS') {
+                //     steps {
+                //         build job: '90-eks', 
+                //         wait: false,
+                //         propagate: false
+                //     }
+                // }
             } 
         } 
         stage('Trigger ALB') {
