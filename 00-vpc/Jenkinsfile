@@ -59,6 +59,9 @@ pipeline {
                             Please open Jenkins and approve the deployment.
                             """,
                             to: "${APPROVAL_EMAIL}"
+
+                            echo "EMAIL=${APPROVAL_EMAIL}"
+
                         )
                     }
 
