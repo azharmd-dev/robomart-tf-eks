@@ -41,23 +41,63 @@ pipeline {
             }
         }
 
-        stage ('Deploy'){
-            input {
-                message "Approve deployment?"
-                ok "Deploy"
-            }
-
+        stage('Approve & Apply VPC') {
             steps {
                 script {
-                    withAWS(region:"${AWS_REGION}", credentials: "${AWS_CREDS}") {
+
+                    // 🔐 Get email from Jenkins credentials and send approval mail
+                    withCredentials([string(credentialsId: 'approval-email', variable: 'APPROVAL_EMAIL')]) {
+                        emailext(
+                            subject: "Approval required: Terraform Apply VPC",
+                            body: """
+                            Terraform VPC apply is waiting for approval.
+
+                            Job: ${env.JOB_NAME}
+                            Build: ${env.BUILD_NUMBER}
+                            URL: ${env.BUILD_URL}
+
+                            Please open Jenkins and approve the deployment.
+                            """,
+                            to: "${APPROVAL_EMAIL}"
+                        )
+                    }
+
+                    // ⛔ Pipeline pauses here until approved
+                    input(
+                        message: "Approve Terraform Apply for VPC?",
+                        ok: "Apply"
+                    )
+
+                    // ☁️ Run Terraform after approval
+                    withAWS(region: "${AWS_REGION}", credentials: "${AWS_CREDS}") {
                         sh """
                             cd 00-vpc
                             terraform apply --auto-approve
                         """
                     }
+
                 }
             }
         }
+
+
+        // stage ('Deploy'){
+        //     input {
+        //         message "Approve deployment?"
+        //         ok "Deploy"
+        //     }
+
+        //     steps {
+        //         script {
+        //             withAWS(region:"${AWS_REGION}", credentials: "${AWS_CREDS}") {
+        //                 sh """
+        //                     cd 00-vpc
+        //                     terraform apply --auto-approve
+        //                 """
+        //             }
+        //         }
+        //     }
+        // }
         stage('Trigger SG') {
             steps {
                 build job: '10-sg', 
