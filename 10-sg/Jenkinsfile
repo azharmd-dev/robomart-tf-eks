@@ -5,9 +5,14 @@ pipeline {
         }
     }
 
-        environment {
+    environment {
         AWS_REGION = "us-east-1"
         AWS_CREDS = "aws-creds"
+    }
+
+    options{
+        disableConcurrentBuilds()
+        ansiColor('xterm')
     }
 
     stages {
