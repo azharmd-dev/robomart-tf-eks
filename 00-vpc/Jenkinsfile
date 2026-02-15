@@ -42,13 +42,16 @@ pipeline {
         }
 
         stage('Approve & Apply VPC') {
-            steps {
+              steps {
                 script {
 
-                    // 🔐 Load email from Secret Text and clean it
+                    // 🔐 Load email from Jenkins Secret Text credential
                     withCredentials([string(credentialsId: 'approval-email', variable: 'APPROVAL_EMAIL')]) {
-                        def cleanEmail = APPROVAL_EMAIL.trim()
 
+                        // Convert to plain string + remove hidden newline/spaces
+                        def cleanEmail = "${APPROVAL_EMAIL}".trim()
+
+                        // 📧 Send approval email
                         emailext(
                             subject: "Approval required: Terraform Apply VPC",
                             body: """
@@ -60,17 +63,18 @@ pipeline {
 
                             Please open Jenkins and approve the deployment.
                             """,
-                                to: cleanEmail
+                                to: cleanEmail,
+                                recipientProviders: []   // prevents Jenkins from filtering recipients
                         )
                     }
 
-                    // ⛔ Pause pipeline for manual approval
+                    // ⛔ Pause pipeline until someone approves
                     input(
                         message: "Approve Terraform Apply for VPC?",
                         ok: "Apply"
                     )
 
-                    // ☁️ Run Terraform only after approval
+                    // ☁️ Run Terraform after approval
                     withAWS(region: "${AWS_REGION}", credentials: "${AWS_CREDS}") {
                         sh """
                             cd 00-vpc
@@ -81,6 +85,7 @@ pipeline {
                 }
             }
         }
+
 
 
 
