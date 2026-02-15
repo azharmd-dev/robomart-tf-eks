@@ -27,9 +27,10 @@ variable "eks_nodegroup_green_version" {
 }
 
 variable enable_blue {
+  type = bool
 
 }
 
 variable enable_green {
-    
+  type = bool
 }
