@@ -319,7 +319,7 @@ resource "aws_security_group_rule" "eks_node_vpc" {
   protocol          = "-1"
   to_port           = 0
 }
-
+##to accept traffic from Jenkins which is on default vpc
 resource "aws_security_group_rule" "eks_control_plane_jenkins_agent" {
   type              = "ingress"
   security_group_id = local.eks_control_plane_sg_id
