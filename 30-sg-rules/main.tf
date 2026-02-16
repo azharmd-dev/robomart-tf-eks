@@ -319,3 +319,12 @@ resource "aws_security_group_rule" "eks_node_vpc" {
   protocol          = "-1"
   to_port           = 0
 }
+
+resource "aws_security_group_rule" "eks_control_plane_jenkins_agent" {
+  type              = "ingress"
+  security_group_id = local.eks_control_plane_sg_id
+  source_security_group_id = local.jenkins_agent_sg_id
+  from_port         = 443
+  protocol          = "tcp"
+  to_port           = 443
+}
