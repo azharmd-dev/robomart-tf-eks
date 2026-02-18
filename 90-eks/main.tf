@@ -35,19 +35,19 @@ module "eks" {
   eks_managed_node_groups = {
     #Blue node group deployment
     Blue = {
-      capacity_type = "SPOT"
+      capacity_type = "ON_DEMAND"
 
       # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups
       ami_type       = "AL2023_x86_64_STANDARD"
-      instance_types = ["t3.small", "t3.medium","c5.large"]
+      instance_types = "t3.small"
       iam_role_additional_policies  = {
         amazonEFS = "arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy"
         amazonEBS = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
       }
 
-      min_size     = 3
+      min_size     = 2
       max_size     = 10
-      desired_size = 3
+      desired_size = 2
     }
     #Green node group depolyment
     #     Green = {
