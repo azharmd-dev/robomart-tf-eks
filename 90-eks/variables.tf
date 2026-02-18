@@ -31,6 +31,6 @@ variable enable_blue {
 
 }
 
-variable enable_green {
-  type = bool
-}
+# variable enable_green {
+#   type = bool
+# }
