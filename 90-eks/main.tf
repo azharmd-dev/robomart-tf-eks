@@ -46,7 +46,7 @@ module "eks" {
       }
 
       min_size     = 2
-      max_size     = 10
+      max_size     = 3
       desired_size = 2
     }
     #Green node group depolyment
