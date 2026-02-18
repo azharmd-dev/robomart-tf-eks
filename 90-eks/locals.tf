@@ -30,7 +30,7 @@ locals {
     Blue = {
       capacity_type = "SPOT"
       ami_type       = "AL2023_x86_64_STANDARD"
-      instance_types = ["t3.small","t3.medium","c5.large"]
+      instance_types = ["t3.small","t3.micro"]
 
       iam_role_additional_policies = {
         amazonEFS = "arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy"
