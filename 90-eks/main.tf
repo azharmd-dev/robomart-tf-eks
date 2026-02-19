@@ -11,10 +11,24 @@ module "eks" {
       before_compute = true
     }
     kube-proxy             = {}
-    vpc-cni                = {
+    # vpc-cni                = {
+    #   before_compute = true
+    # }
+    # metrics-server = {}
+    vpc-cni = {
       before_compute = true
+      configuration_values = jsonencode({
+        env = {
+          ENABLE_PREFIX_DELEGATION = "true"
+          WARM_PREFIX_TARGET       = "1"
+        }
+      })
     }
-    metrics-server = {}
+    metrics-server = {
+      configuration_values = jsonencode({
+        replicas = 1
+      })
+    }
   }
 
   # Optional
@@ -35,7 +49,7 @@ module "eks" {
   eks_managed_node_groups = {
     #Blue node group deployment
     Blue = {
-      capacity_type = "ON_DEMAND"
+      capacity_type = "SPOT"
 
       # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups
       ami_type       = "AL2023_x86_64_STANDARD"
