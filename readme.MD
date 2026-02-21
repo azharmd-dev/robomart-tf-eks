@@ -8,7 +8,7 @@ Infrastructure is created using Terraform and automated through Jenkins pipeline
 
 ## Architecture Diagram
 
-![Three Tier Architecture – VPC, Public, Private, Database Subnets](./assets/three-tier-architecture.png)
+![Three Tier Architecture – VPC, Public, Private, Database Subnets](../assets/three-tier-architecture.png)
 
 ## 🏗️ Infrastructure Components
 
